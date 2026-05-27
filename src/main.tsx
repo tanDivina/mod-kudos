@@ -33,6 +33,7 @@ import {
 } from './insight-analyzer/index.js';
 import { buildDashboardSummary } from './dashboard/index.js';
 import { logError, logInfo } from './utils/logger.js';
+import { activeUsersKey } from './utils/redis-keys.js';
 
 import type { QualityCheckJobData, ModAction, ModNote } from './types/index.js';
 
@@ -530,25 +531,54 @@ Devvit.addMenuItem({
   onPress: async (_event: any, context: any) => {
     try {
       const subreddit = await context.reddit.getCurrentSubreddit();
-      const { store } = createSubsystems(context);
+      const { store, userTracker } = createSubsystems(context);
 
-      const metrics = await getLatestMetrics(store);
-      const summary = buildDashboardSummary(metrics);
+      // Build a lightweight summary directly from active users
+      const activeUsers = await store.getSetMembers(activeUsersKey());
+      const topUsers: { username: string; score: number }[] = [];
 
-      await context.reddit.submitPost({
+      for (const username of activeUsers.slice(0, 20)) {
+        const qs = await userTracker.getQualityScore(username);
+        topUsers.push({ username, score: qs.score });
+      }
+      topUsers.sort((a, b) => b.score - a.score);
+
+      const date = new Date().toISOString().split('T')[0];
+      const lines: string[] = [
+        `=== ModKudos Community Dashboard ===`,
+        ``,
+        `Last updated: ${date}`,
+        `Active contributors tracked: ${activeUsers.length}`,
+        ``,
+        `--- Top Contributors ---`,
+      ];
+
+      if (topUsers.length === 0) {
+        lines.push('No contributors tracked yet.');
+      } else {
+        topUsers.slice(0, 10).forEach((u, i) => {
+          const label = u.score >= 75 ? 'Excellent' : u.score >= 50 ? 'Good' : u.score >= 25 ? 'Fair' : 'Poor';
+          lines.push(`${i + 1}. u/${u.username} — Score: ${u.score}/100 (${label})`);
+        });
+      }
+
+      const summary = lines.join('\n');
+
+      const post = await context.reddit.submitPost({
         subredditName: subreddit.name,
-        title: `ModKudos Community Dashboard — ${new Date().toISOString().split('T')[0]}`,
+        title: `ModKudos Community Dashboard — ${date}`,
         text: summary,
       });
 
-      context.ui.showToast('Dashboard post created.');
+      context.ui.showToast(`Dashboard created! Visit: reddit.com${post.permalink}`);
     } catch (error) {
+      const msg = error instanceof Error ? error.message : String(error);
       logError({
         subsystem: 'Dashboard',
         operation: 'Create Dashboard',
         error: error instanceof Error ? error : String(error),
       });
-      context.ui.showToast('Failed to create dashboard post.');
+      context.ui.showToast(`Error: ${msg.slice(0, 100)}`);
     }
   },
 });

@@ -137,10 +137,14 @@ export class RedisStore {
     stop: number | string,
     options?: ZRangeOptions,
   ): Promise<{ member: string; score: number }[]> {
+    // Devvit's Redis client doesn't support '-inf'/'+inf' strings for score ranges.
+    // Convert string sentinels to numeric bounds.
+    const numStart = start === '-inf' ? 0 : Number(start);
+    const numStop = stop === '+inf' ? Date.now() + 1e12 : Number(stop);
     return this.redis.zRange(
       key,
-      start,
-      stop,
+      numStart,
+      numStop,
       options ?? { by: 'score', reverse: true },
     );
   }
@@ -244,10 +248,8 @@ export class RedisStore {
       return (client as any).sMembers(key) as Promise<string[]>;
     }
 
-    // Fallback: read all members from a sorted set.
-    const results = await this.redis.zRange(key, 0, '+', {
-      by: 'score',
-    });
+    // Fallback: read all members from a sorted set using rank (not score).
+    const results = await this.redis.zRange(key, 0, -1);
     return results.map((r) => r.member);
   }
 }

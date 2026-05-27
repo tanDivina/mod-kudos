@@ -80,16 +80,14 @@ All thresholds and reward types are configurable per subreddit via App Settings 
 
 ## Project Impact
 
-**r/AskReddit and large Q&A subreddits**
-These communities live and die by quality answers. ModKudos automatically identifies and rewards the most helpful responses, encouraging the behavior that makes these communities valuable. Mods save time by having full user context at their fingertips instead of manually checking post history before acting on a report.
+**r/explainlikeimfive and r/askscience**
+These communities live and die by the quality of their answers. Mods spend significant time manually identifying responses worth pinning or rewarding — ModKudos automates this entirely. The Kudos Queue surfaces the best answers automatically, and the reward engine recognizes contributors with flair and a personal thank-you. Research shows this kind of positive reinforcement causally improves future content quality (Lambert et al., 2025) — exactly what these communities need to maintain their high standards at scale.
 
-Estimated time saving: a mod team reviewing 50 borderline cases per day currently spends ~2 minutes per case looking up user history. ModKudos reduces this to ~10 seconds — 95 minutes saved per day per mod team.
+**r/depression, r/anxiety, and mental health communities**
+Volunteer moderators in support communities face severe burnout because every tool they have is punitive — they only ever see the worst content. ModKudos shifts this by surfacing supportive, empathetic, constructive comments for recognition. A mod can open the Kudos Queue and spend 5 minutes rewarding the people making the community better, rather than spending an hour removing the people making it worse. The User Context Card also helps mods distinguish first-time rule-breakers from repeat offenders, leading to more compassionate and consistent moderation decisions.
 
-**r/science and educational subreddits**
-These communities have strict quality standards. ModKudos surfaces the best contributions for recognition while helping mods quickly distinguish repeat rule-breakers from first-time mistakes — leading to fairer, more consistent moderation.
-
-**Growing communities (1k–100k members)**
-Small mod teams with limited time benefit most from automation. ModKudos handles the positive reinforcement loop automatically, freeing mods to focus on hard cases. The Kudos Queue means mods never have to manually hunt for good content to reward — it's surfaced for them.
+**r/worldnews and high-traffic news communities**
+At massive scale, quality contributions get buried under noise. ModKudos helps mods find the rare well-cited, nuanced comment worth elevating — automatically flagged by the quality detector and waiting in the Kudos Queue. Estimated time saving: a mod team reviewing 50 borderline cases per day currently spends ~2 minutes per case looking up user history. ModKudos reduces this to ~10 seconds — 95 minutes saved per day per mod team.
 
 ---
 
