@@ -530,13 +530,7 @@ Devvit.addMenuItem({
   onPress: async (_event: any, context: any) => {
     try {
       const subreddit = await context.reddit.getCurrentSubreddit();
-      const { store, userTracker } = createSubsystems(context);
-
-      // Run a fresh analysis before creating the dashboard
-      const periodEnd = Date.now();
-      const settings = await getSettings(context);
-      const periodStart = periodEnd - settings.analysisIntervalHours * 60 * 60 * 1000;
-      await runAnalysis(store, userTracker, periodStart, periodEnd);
+      const { store } = createSubsystems(context);
 
       const metrics = await getLatestMetrics(store);
       const summary = buildDashboardSummary(metrics);
@@ -547,7 +541,7 @@ Devvit.addMenuItem({
         text: summary,
       });
 
-      context.ui.showToast('Dashboard post created with latest metrics.');
+      context.ui.showToast('Dashboard post created.');
     } catch (error) {
       logError({
         subsystem: 'Dashboard',
@@ -566,18 +560,10 @@ Devvit.addMenuItem({
   postFilter: 'currentApp',
   onPress: async (event: any, context: any) => {
     try {
-      const { store, userTracker } = createSubsystems(context);
-
-      // Run a fresh analysis
-      const periodEnd = Date.now();
-      const settings = await getSettings(context);
-      const periodStart = periodEnd - settings.analysisIntervalHours * 60 * 60 * 1000;
-      await runAnalysis(store, userTracker, periodStart, periodEnd);
-
+      const { store } = createSubsystems(context);
       const metrics = await getLatestMetrics(store);
       const summary = buildDashboardSummary(metrics);
 
-      // Edit the post in place
       const post = await context.reddit.getPostById(event.targetId);
       await post.edit({ text: summary });
 
