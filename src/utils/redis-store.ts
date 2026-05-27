@@ -145,6 +145,19 @@ export class RedisStore {
     );
   }
 
+  /**
+   * Remove a member from a sorted set.
+   *
+   * @param key    - The sorted set key.
+   * @param member - The member to remove.
+   */
+  async removeFromSortedSet(key: string, member: string): Promise<void> {
+    await withRetry(`zRem(${key})`, () =>
+      this.redis.zRem(key, [member]),
+      this.baseDelayMs,
+    );
+  }
+
   // -----------------------------------------------------------------------
   // String operations
   // -----------------------------------------------------------------------

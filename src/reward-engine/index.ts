@@ -22,6 +22,22 @@ import type { UserTracker } from '../user-tracker/index.js';
 import { rewardIdempotencyKey } from '../utils/redis-keys.js';
 
 // ---------------------------------------------------------------------------
+// Praise macro pool (randomized to reduce repetition)
+// ---------------------------------------------------------------------------
+
+const PRAISE_MACROS = [
+  'Thanks for your quality contribution, {{username}}! Your post/comment has been recognized: {{link}}',
+  'Great work, {{username}}! This is exactly the kind of content that makes this community great: {{link}}',
+  'Your contribution stood out, {{username}} — the mod team wanted to say thanks: {{link}}',
+  'High-quality content spotted! Well done {{username}}, keep it up: {{link}}',
+  'The mod team recognized your contribution as exceptional, {{username}}: {{link}}',
+];
+
+function getRandomPraiseTemplate(): string {
+  return PRAISE_MACROS[Math.floor(Math.random() * PRAISE_MACROS.length)];
+}
+
+// ---------------------------------------------------------------------------
 // Constants
 // ---------------------------------------------------------------------------
 
@@ -322,11 +338,12 @@ export class RewardEngine {
         break;
 
       case 'thank_you_message': {
-        const messageText = this.replacePlaceholders(
-          config.thankYouTemplate,
-          username,
-          link,
-        );
+        // Use a random praise macro unless the mod has customized the template
+        const isDefaultTemplate = config.thankYouTemplate.includes('{{username}}') &&
+          config.thankYouTemplate.includes('{{link}}') &&
+          config.thankYouTemplate === 'Thanks for your quality contribution, {{username}}! Your post/comment has been recognized: {{link}}';
+        const template = isDefaultTemplate ? getRandomPraiseTemplate() : config.thankYouTemplate;
+        const messageText = this.replacePlaceholders(template, username, link);
         await this.reddit.sendPrivateMessage({
           to: username,
           subject: 'Thank you for your quality contribution!',

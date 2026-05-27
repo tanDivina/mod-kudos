@@ -20,7 +20,7 @@ export const DEFAULT_MIN_COMMENT_SCORE = 25;
 export const DEFAULT_FLAIR_ENABLED = true;
 export const DEFAULT_THANK_YOU_ENABLED = true;
 export const DEFAULT_RECOGNITION_POST_ENABLED = false;
-export const DEFAULT_FLAIR_TEXT = 'Quality Contributor';
+export const DEFAULT_FLAIR_TEXT = 'Mod Pick 🏅';
 export const DEFAULT_THANK_YOU_TEMPLATE =
   'Thanks for your quality contribution, {{username}}! Your post/comment has been recognized: {{link}}';
 export const DEFAULT_RECOGNITION_POST_TITLE =

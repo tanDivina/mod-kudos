@@ -80,3 +80,13 @@ export function activeUsersKey(): string {
 export function qualityCheckKey(contentId: string): string {
   return `${PREFIX}:quality:check:${contentId}`;
 }
+
+/** Sorted set key for the positive queue (quality content pending mod review), scored by timestamp. */
+export function positiveQueueKey(): string {
+  return `${PREFIX}:positive-queue`;
+}
+
+/** String (JSON) key for a positive queue item detail. */
+export function positiveQueueItemKey(contentId: string): string {
+  return `${PREFIX}:positive-queue:item:${contentId}`;
+}

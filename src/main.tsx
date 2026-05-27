@@ -21,6 +21,8 @@ import {
   onPostCreate,
   onCommentCreate,
   evaluateQuality,
+  getPositiveQueue,
+  removeFromPositiveQueue,
   QUALITY_CHECK_JOB_NAME,
 } from './quality-detector/index.js';
 import { buildContextCardData, buildContextCardSummary } from './context-card/index.js';
@@ -207,6 +209,7 @@ Devvit.addSchedulerJob({
         jobData,
         settings.thresholds,
         userTracker,
+        store,
       );
 
       if (isHighQuality) {
@@ -329,6 +332,18 @@ const addModNoteForm = Devvit.createForm(
   },
 );
 
+// Dynamic form for "Open Positive Queue" — shows high-quality content pending mod review
+const positiveQueueForm = Devvit.createForm(
+  (data: { [key: string]: any }) => ({
+    title: '⭐ Positive Queue',
+    description: data.summary as string,
+    fields: [],
+    acceptLabel: 'Close',
+    cancelLabel: '',
+  }),
+  (_event: any, _context: any) => {},
+);
+
 // ---------------------------------------------------------------------------
 // Menu Actions
 // ---------------------------------------------------------------------------
@@ -409,6 +424,10 @@ Devvit.addMenuItem({
         currentUser?.username ?? 'unknown',
       );
 
+      // Remove from positive queue if it was there
+      const { store } = createSubsystems(context);
+      await removeFromPositiveQueue(store, event.targetId);
+
       const applied = result.results.filter((r: any) => r.success && !r.skipped).length;
       const skipped = result.results.filter((r: any) => r.skipped).length;
       const failed = result.results.filter((r: any) => !r.success && !r.skipped).length;
@@ -462,6 +481,44 @@ Devvit.addMenuItem({
         error: error instanceof Error ? error : String(error),
       });
       context.ui.showToast('Failed to open mod note form.');
+    }
+  },
+});
+
+// "Open Positive Queue" — shows high-quality content detected and awaiting mod recognition
+Devvit.addMenuItem({
+  label: 'Open Positive Queue',
+  location: ['subreddit'],
+  onPress: async (_event: any, context: any) => {
+    try {
+      const { store } = createSubsystems(context);
+      const items = await getPositiveQueue(store, 20);
+
+      if (items.length === 0) {
+        context.ui.showToast('Positive Queue is empty — no high-quality content detected yet.');
+        return;
+      }
+
+      const lines: string[] = [];
+      lines.push(`${items.length} item(s) detected as high-quality and awaiting recognition:\n`);
+
+      for (let i = 0; i < items.length; i++) {
+        const item = items[i];
+        const date = new Date(item.detectedAt).toISOString().split('T')[0];
+        const type = item.contentType === 'post' ? '📝' : '💬';
+        lines.push(`${i + 1}. ${type} u/${item.authorUsername} — ${item.contentType} ${item.contentId} (${date})`);
+      }
+
+      lines.push('\nUse "Reward User" on any of these to recognise the contributor and clear it from the queue.');
+
+      context.ui.showForm(positiveQueueForm, { summary: lines.join('\n') });
+    } catch (error) {
+      logError({
+        subsystem: 'PositiveQueue',
+        operation: 'Open Positive Queue',
+        error: error instanceof Error ? error : String(error),
+      });
+      context.ui.showToast('Failed to load positive queue.');
     }
   },
 });

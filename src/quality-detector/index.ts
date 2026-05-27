@@ -16,7 +16,7 @@ import type {
 } from '../types/index.js';
 import type { UserTracker } from '../user-tracker/index.js';
 import type { RedisStore } from '../utils/redis-store.js';
-import { qualityCheckKey } from '../utils/redis-keys.js';
+import { qualityCheckKey, positiveQueueKey, positiveQueueItemKey } from '../utils/redis-keys.js';
 
 // ---------------------------------------------------------------------------
 // Constants
@@ -220,6 +220,7 @@ export async function evaluateQuality(
   jobData: QualityCheckJobData,
   thresholds: QualityThresholds,
   userTracker: UserTracker,
+  store: RedisStore,
 ): Promise<boolean> {
   let isHighQuality = false;
 
@@ -250,7 +251,7 @@ export async function evaluateQuality(
     isHighQuality = comment.score >= thresholds.minCommentScore;
   }
 
-  // On high-quality: record quality event via User_Tracker
+  // On high-quality: record quality event via User_Tracker and add to positive queue
   if (isHighQuality) {
     const qualityEvent: ContributionEvent = {
       schemaVersion: 1,
@@ -263,6 +264,18 @@ export async function evaluateQuality(
     };
 
     await userTracker.recordContributionEvent(qualityEvent);
+
+    // Add to positive queue for mod review
+    const now = Date.now();
+    const queueItem = JSON.stringify({
+      contentId: jobData.contentId,
+      contentType: jobData.contentType,
+      authorUsername: jobData.authorUsername,
+      subredditId: jobData.subredditId,
+      detectedAt: now,
+    });
+    await store.setString(positiveQueueItemKey(jobData.contentId), queueItem);
+    await store.addToSortedSet(positiveQueueKey(), jobData.contentId, now);
   }
 
   return isHighQuality;
@@ -308,4 +321,51 @@ async function fetchWithRetry<T>(
  */
 function sleep(ms: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+// ---------------------------------------------------------------------------
+// Positive Queue retrieval
+// ---------------------------------------------------------------------------
+
+export interface PositiveQueueItem {
+  contentId: string;
+  contentType: 'post' | 'comment';
+  authorUsername: string;
+  subredditId: string;
+  detectedAt: number;
+}
+
+/**
+ * Get the most recent items from the positive queue (up to limit).
+ * Returns newest first.
+ */
+export async function getPositiveQueue(
+  store: RedisStore,
+  limit: number = 20,
+): Promise<PositiveQueueItem[]> {
+  const entries = await store.getFromSortedSet(positiveQueueKey(), '-inf', '+inf');
+  // Reverse to get newest first, then limit
+  const recent = entries.reverse().slice(0, limit);
+
+  const items: PositiveQueueItem[] = [];
+  for (const entry of recent) {
+    const json = await store.getString(positiveQueueItemKey(entry.member));
+    if (!json) continue;
+    try {
+      items.push(JSON.parse(json) as PositiveQueueItem);
+    } catch {
+      // skip malformed
+    }
+  }
+  return items;
+}
+
+/**
+ * Remove an item from the positive queue (after mod has reviewed/rewarded it).
+ */
+export async function removeFromPositiveQueue(
+  store: RedisStore,
+  contentId: string,
+): Promise<void> {
+  await store.removeFromSortedSet(positiveQueueKey(), contentId);
 }

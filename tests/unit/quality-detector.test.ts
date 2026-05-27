@@ -62,6 +62,14 @@ function createMockStore() {
     getSetMembers: vi.fn(async (key: string) => {
       return [...(sets.get(key) ?? [])];
     }),
+
+    removeFromSortedSet: vi.fn(async (key: string, member: string) => {
+      const set = sortedSets.get(key);
+      if (set) {
+        const idx = set.findIndex((e) => e.member === member);
+        if (idx !== -1) set.splice(idx, 1);
+      }
+    }),
   };
 }
 
@@ -253,6 +261,7 @@ describe('Quality_Detector', () => {
           postJobData,
           defaultThresholds,
           tracker,
+          mockStore as any,
         );
 
         expect(result).toBe(true);
@@ -266,6 +275,7 @@ describe('Quality_Detector', () => {
           postJobData,
           defaultThresholds,
           tracker,
+          mockStore as any,
         );
 
         expect(result).toBe(false);
@@ -279,6 +289,7 @@ describe('Quality_Detector', () => {
           postJobData,
           defaultThresholds,
           tracker,
+          mockStore as any,
         );
 
         expect(result).toBe(false);
@@ -292,6 +303,7 @@ describe('Quality_Detector', () => {
           postJobData,
           defaultThresholds,
           tracker,
+          mockStore as any,
         );
 
         expect(result).toBe(true);
@@ -300,7 +312,7 @@ describe('Quality_Detector', () => {
       it('records post_quality event on high-quality classification', async () => {
         ctx.reddit.getPostById.mockResolvedValue({ score: 100, upvoteRatio: 0.95 });
 
-        await evaluateQuality(ctx.context, postJobData, defaultThresholds, tracker);
+        await evaluateQuality(ctx.context, postJobData, defaultThresholds, tracker, mockStore as any);
 
         const events = await tracker.getUserEvents('alice');
         expect(events.some((e) => e.eventType === 'post_quality')).toBe(true);
@@ -312,7 +324,7 @@ describe('Quality_Detector', () => {
       it('does NOT record quality event when post is not high-quality', async () => {
         ctx.reddit.getPostById.mockResolvedValue({ score: 10, upvoteRatio: 0.5 });
 
-        await evaluateQuality(ctx.context, postJobData, defaultThresholds, tracker);
+        await evaluateQuality(ctx.context, postJobData, defaultThresholds, tracker, mockStore as any);
 
         const events = await tracker.getUserEvents('alice');
         expect(events.some((e) => e.eventType === 'post_quality')).toBe(false);
@@ -336,6 +348,7 @@ describe('Quality_Detector', () => {
           commentJobData,
           defaultThresholds,
           tracker,
+          mockStore as any,
         );
 
         expect(result).toBe(true);
@@ -349,6 +362,7 @@ describe('Quality_Detector', () => {
           commentJobData,
           defaultThresholds,
           tracker,
+          mockStore as any,
         );
 
         expect(result).toBe(false);
@@ -362,6 +376,7 @@ describe('Quality_Detector', () => {
           commentJobData,
           defaultThresholds,
           tracker,
+          mockStore as any,
         );
 
         expect(result).toBe(true);
@@ -370,7 +385,7 @@ describe('Quality_Detector', () => {
       it('records comment_quality event on high-quality classification', async () => {
         ctx.reddit.getCommentById.mockResolvedValue({ score: 50 });
 
-        await evaluateQuality(ctx.context, commentJobData, defaultThresholds, tracker);
+        await evaluateQuality(ctx.context, commentJobData, defaultThresholds, tracker, mockStore as any);
 
         const events = await tracker.getUserEvents('bob');
         expect(events.some((e) => e.eventType === 'comment_quality')).toBe(true);
@@ -402,6 +417,7 @@ describe('Quality_Detector', () => {
           postJobData,
           defaultThresholds,
           tracker,
+          mockStore as any,
         );
 
         // Advance timers for backoff delays
@@ -421,6 +437,7 @@ describe('Quality_Detector', () => {
           postJobData,
           defaultThresholds,
           tracker,
+          mockStore as any,
         );
 
         // Advance timers for all backoff delays
@@ -448,6 +465,7 @@ describe('Quality_Detector', () => {
           commentJobData,
           defaultThresholds,
           tracker,
+          mockStore as any,
         );
 
         await vi.advanceTimersByTimeAsync(1000);

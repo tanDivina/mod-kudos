@@ -20,6 +20,7 @@ export type Subsystem =
   | 'ContextCard'
   | 'InsightAnalyzer'
   | 'Dashboard'
+  | 'PositiveQueue'
   | 'RedisStore'
   | 'Settings';
 
