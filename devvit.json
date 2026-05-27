@@ -1,0 +1,31 @@
+{
+  "$schema": "https://developers.reddit.com/schema/config-file.v1.json",
+  "name": "modkudos",
+  "blocks": {
+    "entry": "src/main.tsx",
+    "triggers": [
+      "onPostCreate",
+      "onCommentCreate",
+      "onModAction"
+    ],
+    "menu": {
+      "enable": true
+    },
+    "forms": {
+      "enable": true
+    },
+    "settings": {
+      "enable": true
+    }
+  },
+  "permissions": {
+    "redis": true,
+    "reddit": {
+      "enable": true,
+      "scope": "moderator"
+    }
+  },
+  "dev": {
+    "subreddit": "modkudos_dev"
+  }
+}
