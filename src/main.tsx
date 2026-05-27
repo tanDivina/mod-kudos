@@ -332,10 +332,10 @@ const addModNoteForm = Devvit.createForm(
   },
 );
 
-// Dynamic form for "Open Positive Queue" — shows high-quality content pending mod review
+// Dynamic form for "Open Kudos Queue" — shows high-quality content pending mod review
 const positiveQueueForm = Devvit.createForm(
   (data: { [key: string]: any }) => ({
-    title: '⭐ Positive Queue',
+    title: '⭐ Kudos Queue',
     description: data.summary as string,
     fields: [],
     acceptLabel: 'Close',
@@ -485,9 +485,9 @@ Devvit.addMenuItem({
   },
 });
 
-// "Open Positive Queue" — shows high-quality content detected and awaiting mod recognition
+// "Open Kudos Queue" — shows high-quality content detected and awaiting mod recognition
 Devvit.addMenuItem({
-  label: 'Open Positive Queue',
+  label: 'Open Kudos Queue',
   location: ['subreddit'],
   onPress: async (_event: any, context: any) => {
     try {
@@ -495,7 +495,7 @@ Devvit.addMenuItem({
       const items = await getPositiveQueue(store, 20);
 
       if (items.length === 0) {
-        context.ui.showToast('Positive Queue is empty — no high-quality content detected yet.');
+        context.ui.showToast('Kudos Queue is empty — no high-quality content detected yet.');
         return;
       }
 
@@ -515,10 +515,10 @@ Devvit.addMenuItem({
     } catch (error) {
       logError({
         subsystem: 'PositiveQueue',
-        operation: 'Open Positive Queue',
+        operation: 'Open Kudos Queue',
         error: error instanceof Error ? error : String(error),
       });
-      context.ui.showToast('Failed to load positive queue.');
+      context.ui.showToast('Failed to load Kudos Queue.');
     }
   },
 });

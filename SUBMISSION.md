@@ -12,17 +12,17 @@ The first native Reddit mod tool to bring positive reinforcement to community ma
 
 Moderation interfaces are designed almost exclusively for punitive work: removing spam, banning users, filtering toxicity. Research by Lambert et al. (2025) identified this as a critical gap — moderators want to encourage good behavior but lack the tools to do so. Their study demonstrated that positive reinforcement causally improves future content quality and reduces the likelihood of future removals. Yet no native Reddit tool exists to act on this.
 
-ModKudos is the first Devvit app to bring the Positive Queue concept natively to Reddit — automatic, integrated, and requiring no browser extension.
+ModKudos is the first Devvit app to bring the Kudos Queue concept natively to Reddit — automatic, integrated, and requiring no browser extension.
 
 ---
 
 ### Core Features
 
 **1. Automatic Quality Detection**
-ModKudos monitors every new post and comment. After a short delay (to let votes accumulate), it evaluates content against mod-configured thresholds — minimum upvote ratio and score. High-quality content is automatically flagged and added to the Positive Queue.
+ModKudos monitors every new post and comment. After a short delay (to let votes accumulate), it evaluates content against mod-configured thresholds — minimum upvote ratio and score. High-quality content is automatically flagged and added to the Kudos Queue.
 
-**2. The Positive Queue**
-Inspired directly by Lambert et al. (2025), the Positive Queue is a subreddit menu action that shows mods a live list of recently detected high-quality content awaiting recognition. Mods can review it at any time and reward contributors in one click. When a user is rewarded, the item is automatically cleared from the queue.
+**2. The Kudos Queue**
+Inspired by research into positive reinforcement moderation tools (Lambert et al., 2025), the Kudos Queue is a subreddit menu action that shows mods a live list of recently detected high-quality content awaiting recognition. Mods can review it at any time and reward contributors in one click. When a user is rewarded, the item is automatically cleared from the queue.
 
 **3. Positive Reinforcement Engine**
 Three reward types, each independently toggleable in App Settings:
@@ -71,7 +71,7 @@ All thresholds and reward types are configurable per subreddit via App Settings 
 
 1. Install the app and configure thresholds in Mod Tools → Apps → ModKudos → Settings
 2. The app runs silently in the background, tracking all activity and detecting quality content
-3. Open the **Positive Queue** from the subreddit menu to see what's been flagged
+3. Open the **Kudos Queue** from the subreddit menu to see what's been flagged
 4. Use **Reward User** to recognize contributors — rewards fire automatically and the item clears from the queue
 5. Right-click any post → **View User Context** before acting on a report to see the full picture
 6. Run **Create Dashboard** to share community health metrics with the mod team
@@ -89,7 +89,7 @@ Estimated time saving: a mod team reviewing 50 borderline cases per day currentl
 These communities have strict quality standards. ModKudos surfaces the best contributions for recognition while helping mods quickly distinguish repeat rule-breakers from first-time mistakes — leading to fairer, more consistent moderation.
 
 **Growing communities (1k–100k members)**
-Small mod teams with limited time benefit most from automation. ModKudos handles the positive reinforcement loop automatically, freeing mods to focus on hard cases. The Positive Queue means mods never have to manually hunt for good content to reward — it's surfaced for them.
+Small mod teams with limited time benefit most from automation. ModKudos handles the positive reinforcement loop automatically, freeing mods to focus on hard cases. The Kudos Queue means mods never have to manually hunt for good content to reward — it's surfaced for them.
 
 ---
 
@@ -119,7 +119,7 @@ https://github.com/tanDivina/mod-kudos
 - [x] Tool overview with full capabilities
 - [x] Project impact with 3 target communities
 - [x] 195 unit tests passing
-- [x] Positive Queue menu action
+- [x] Kudos Queue menu action
 - [x] View User Context with quality score and history
 - [x] Reward User with idempotency and queue clearing
 - [x] Add Mod Note with correct user attribution
@@ -128,4 +128,4 @@ https://github.com/tanDivina/mod-kudos
 - [x] App Settings configurable without reinstallation
 - [x] Triggers, scheduled jobs registered
 - [x] GitHub repository published
-- [ ] Demo video (record: Positive Queue → View User Context → Reward User → Dashboard)
+- [ ] Demo video (record: Kudos Queue → View User Context → Reward User → Dashboard)
